@@ -480,6 +480,8 @@ button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation;-webk
 .badge-tag.abs{background:#2d1c13;color:#ff8b5e;border:1px solid #63331d}
 .badge-tag.chest{background:#12293b;color:var(--info);border:1px solid #204b6b}
 .badge-tag.warm{background:#2f2410;color:var(--warn);border:1px solid #5c4517}
+.equipment-note{display:inline-flex;align-items:center;gap:.3rem;width:fit-content;margin-top:.25rem;padding:.22rem .55rem;border:1px solid var(--line-bright);border-radius:99rem;background:var(--card2);color:var(--muted);font-size:.78rem}
+.equipment-note b{color:var(--text)}
 .badge-side{
   display:inline-flex;
   align-items:center;
@@ -1253,13 +1255,13 @@ const ABS_ROUTINE = [
 
 /* Rutinas CAF basadas únicamente en equipos documentados en el proyecto. */
 const CAF_CHEST_ROUTINE = [
-  {id:'caf_chest_press',short:'Chest press',name:'Chest press',type:'reps',sets:4,repMin:8,repMax:12,defaultReps:10,rest:120,restHint:'120 s',
+  {id:'caf_chest_press',short:'Chest press',name:'Chest press',machine:'Chest press neutro',type:'reps',sets:4,repMin:8,repMax:12,defaultReps:10,rest:120,restHint:'120 s',
     tip:'Ajusta el asiento para que las manijas queden a la altura media del pecho. Mantén espalda apoyada, hombros abajo y atrás; empuja sin bloquear los codos y regresa lentamente. Usa un peso que permita control y rango sin dolor.',
     breath:'Exhala al empujar, inhala al regresar.',prep:'Haz primero la movilidad de hombros y manguito rotador. Comienza con carga ligera y prueba el rango sin dolor.',diagram:'caf_chest_press'},
-  {id:'caf_pushups',short:'Flexiones',name:'Flexiones con manos al ancho de hombros',type:'reps',sets:3,repMin:8,repMax:12,defaultReps:10,rest:90,restHint:'90 s',
+  {id:'caf_pushups',short:'Flexiones',name:'Flexiones con manos al ancho de hombros',machineAlt:'Chest press neutro',type:'reps',sets:3,repMin:8,repMax:12,defaultReps:10,rest:90,restHint:'90 s',
     tip:'Ejercicio con peso corporal, sin equipo. Manos al ancho de hombros, codos cerca de 45° del tronco y cuerpo alineado. Detente si el hombro duele. Si el suelo no es cómodo, omite este ejercicio y añade una serie ligera de chest press.',
     breath:'Inhala al bajar, exhala al empujar.',prep:'Usa un espacio libre en el suelo. Puedes apoyar las rodillas para reducir la carga.',diagram:'normal'},
-  {id:'caf_triceps',short:'Extensión de tríceps',name:'Extensión de tríceps en máquina',type:'reps',sets:2,repMin:10,repMax:15,defaultReps:12,rest:75,restHint:'75 s',
+  {id:'caf_triceps',short:'Extensión de tríceps',name:'Extensión de tríceps en máquina',machine:'Extensión de tríceps',type:'reps',sets:2,repMin:10,repMax:15,defaultReps:12,rest:75,restHint:'75 s',
     tip:'Máquina documentada en la sala de fuerza. Mantén los codos cómodos y cerca del cuerpo, sin inclinarte ni bloquearlos con fuerza. Es un complemento para brazos, no reemplaza el trabajo de pecho.',
     breath:'Exhala al extender, inhala al volver con control.',prep:'Ajusta la máquina y verifica que la posición no irrite el hombro.',diagram:'caf_triceps'}
 ];
@@ -1274,7 +1276,7 @@ const CAF_ABS_ROUTINE = [
   {id:'caf_heel_taps',short:'Toques de talón',name:'Toques alternos de talón',type:'reps',sets:3,repMin:10,repMax:12,defaultReps:10,rest:45,restHint:'45 s',
     tip:'Sin equipo. Boca arriba con rodillas flexionadas y brazos relajados; acerca una mano al talón del mismo lado sin tirar del cuello. Alterna lados y conserva la espalda cómoda.',
     breath:'Exhala al acercar la mano, inhala al volver al centro.',prep:'Usa un espacio libre en el suelo; reduce el recorrido o detente si molesta el cuello, la espalda o el hombro.',diagram:'caf_heel_taps'},
-  {id:'caf_kb_march',short:'Marcha con kettlebell',name:'Marcha estática con kettlebell a un lado',type:'time_sides',duration:20,sets:4,rest:45,restHint:'45 s',sides:['left','right','left','right'],
+  {id:'caf_kb_march',short:'Marcha con kettlebell',name:'Marcha estática con kettlebell a un lado',equipment:'Kettlebell',type:'time_sides',duration:20,sets:4,rest:45,restHint:'45 s',sides:['left','right','left','right'],
     tip:'Kettlebell documentada en la sala funcional. Sostén una carga ligera junto a un lado y marcha despacio en el sitio sin inclinar el tronco. Cambia de mano en cada lado. Si no está disponible o molesta el hombro, haz la marcha sin carga.',
     breath:'Respira de forma fluida y mantén el abdomen firme.',prep:'De pie en un espacio despejado; usa una kettlebell ligera solo si puedes sostenerla sin dolor.',diagram:'caf_kb_march'}
 ];
@@ -1749,6 +1751,13 @@ function exView(rotId, i){
     return {...e, name:'V-Ups (rodillas flexionadas)', tip:e.altTip, diagram:'tuck_v_ups', sub:true};
   }
   return {...e, diagram:e.diagram||e.id, sub:false};
+}
+
+function exerciseEquipmentLabel(ex){
+  if(ex.machine) return `<span class="equipment-note">Máquina: <b>${esc(ex.machine)}</b></span>`;
+  if(ex.equipment) return `<span class="equipment-note">Implemento: <b>${esc(ex.equipment)}</b></span>`;
+  if(ex.machineAlt) return `<span class="equipment-note">Alternativa en máquina: <b>${esc(ex.machineAlt)}</b></span>`;
+  return '';
 }
 
 function touch(){
@@ -2365,34 +2374,24 @@ async function importData(data){
 function sectionIllustration(kind){
   if(kind==='chest'){
     return `<svg viewBox="0 0 80 80" aria-hidden="true" focusable="false">
-      <rect x="6" y="6" width="68" height="68" rx="16" fill="#111b26" stroke="#283b50"/>
-      <path d="M22 26 C28 18, 52 18, 58 26 L62 46 C55 54, 25 54, 18 46 Z" fill="#223447" stroke="#486482" stroke-width="2"/>
-      <path d="M25 29 Q38 32 39 42 Q30 45 23 39 Z" class="hd-core"/>
-      <path d="M55 29 Q42 32 41 42 Q50 45 57 39 Z" class="hd-core"/>
-      <line x1="40" y1="24" x2="40" y2="54" stroke="#6282a3" stroke-width="2" stroke-linecap="round"/>
-      <path d="M16 28 L23 36 M64 28 L57 36" stroke="var(--info)" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M33 10v8c-3 3-8 4-13 6-5 2-8 6-9 12L8 48c-1 4 1 7 5 9l9 5 3 8h30l3-8 9-5c4-2 6-5 5-9l-3-12c-1-6-4-10-9-12-5-2-10-3-13-6v-8" fill="#26394c" stroke="var(--info)" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M38 26c-6-5-15-4-20 2l-3 13c5 5 13 7 23 5zM42 26c6-5 15-4 20 2l3 13c-5 5-13 7-23 5z" fill="rgba(255,107,53,.28)" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M40 26v21" stroke="#9bb3cb" stroke-width="2" stroke-linecap="round"/>
+      <path d="M22 27l-3 4m39-4 3 4" stroke="#d9e5f2" stroke-width="1.7" stroke-linecap="round" opacity=".8"/>
     </svg>`;
   }
   if(kind==='abs'){
     return `<svg viewBox="0 0 80 80" aria-hidden="true" focusable="false">
-      <rect x="6" y="6" width="68" height="68" rx="16" fill="#191618" stroke="#3e2b25"/>
-      <path d="M26 16 C32 13, 48 13, 54 16 L51 64 C45 67, 35 67, 29 64 Z" fill="#262024" stroke="#5c4742" stroke-width="2"/>
-      <rect x="31" y="22" width="8" height="9" rx="2.5" class="hd-core"/>
-      <rect x="41" y="22" width="8" height="9" rx="2.5" class="hd-core"/>
-      <rect x="31" y="34" width="8" height="9" rx="2.5" class="hd-core"/>
-      <rect x="41" y="34" width="8" height="9" rx="2.5" class="hd-core"/>
-      <rect x="32" y="46" width="7" height="9" rx="2.5" class="hd-core"/>
-      <rect x="41" y="46" width="7" height="9" rx="2.5" class="hd-core"/>
+      <path d="M31 10c3 3 15 3 18 0l3 12 7 6-6 31-9 12H36l-9-12-6-31 7-6z" fill="#29242a" stroke="#9b7b72" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M34 25c2-2 4-2 6 0v8c-2 2-4 2-6 0zm12 0c2-2 4-2 6 0v8c-2 2-4 2-6 0zM33 37c2-2 5-2 7 0v8c-2 2-5 2-7 0zm13 0c2-2 5-2 7 0v8c-2 2-5 2-7 0zM34 49c2-2 4-2 6 0v7c-2 2-4 2-6 0zm10 0c2-2 4-2 6 0v7c-2 2-4 2-6 0z" fill="rgba(255,107,53,.34)" stroke="var(--accent)" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M40 21v39" stroke="#c7b0a7" stroke-width="1.6" stroke-linecap="round" opacity=".8"/>
     </svg>`;
   }
-  // CAF (Gimnasio universitario: estación de polea/chest press + kettlebell)
+  // CAF: chest press y kettlebell, ambos documentados en el gimnasio.
   return `<svg viewBox="0 0 80 80" aria-hidden="true" focusable="false">
-    <rect x="6" y="6" width="68" height="68" rx="16" fill="#101b24" stroke="#284257"/>
-    <path d="M20 62 L20 18 L46 18 L46 62" fill="none" stroke="#4c6b8a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-    <rect x="15" y="60" width="40" height="5" rx="2" fill="#385068"/>
-    <rect x="24" y="30" width="12" height="18" rx="2" fill="#293d52" stroke="var(--info)" stroke-width="1.5"/>
-    <path d="M54 44 A6 6 0 1 1 62 44" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/>
-    <circle cx="58" cy="53" r="8.5" class="hd-core"/>
+    <path d="M12 68V16c0-3 2-5 5-5h27v57M8 68h39M20 18h18M24 23v17m10-17v17M20 41h18M18 54h19v5H18z" fill="none" stroke="#8ca8c4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M53 44a8 8 0 0 1 16 0" fill="none" stroke="var(--accent)" stroke-width="3.5" stroke-linecap="round"/>
+    <path d="M51 46h20l-2 20c-.2 2-2 3-4 3h-8c-2 0-3.8-1-4-3z" fill="rgba(255,107,53,.32)" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"/>
   </svg>`;
 }
 
@@ -3018,6 +3017,7 @@ function viewRoutineDetail(rotId){
             <div class="list-thumb">${exerciseDiagram(v.diagram||e.id, 'left')}</div>
             <div class="t">
               <b>${esc(v.name)}${e.category==='warmup'?' <span class="badge-tag warm">Calentamiento</span>':''}${e.category==='cooldown'?' <span class="badge-tag abs">Estiramiento</span>':''}</b>
+              ${exerciseEquipmentLabel(v)}
               <span>${det}</span>
               <p class="small muted" style="margin-top:0.15rem">${esc(v.tip)}</p>
             </div>
@@ -3113,7 +3113,7 @@ function nextCard(){
   const ex=session.cur.ex, rot=activeRoutine();
   if(ex>=rot.length-1) return `<section class="card"><p class="eyebrow">Siguiente</p><p><b>¡Este es el último ejercicio!</b> Al terminar verás el resumen y estadísticas.</p></section>`;
   const e=exView(session.routineId, ex+1);
-  return `<section class="card"><p class="eyebrow">A continuación</p><div class="ex-head"><span class="badge sm">${ex+2}</span><div class="grow"><b>${esc(e.name)}</b><div class="muted small">${e.sets} series · descanso ${e.rest} s</div></div></div><p class="small muted">Prepárate: ${esc(e.prep)}</p></section>`;
+  return `<section class="card"><p class="eyebrow">A continuación</p><div class="ex-head"><span class="badge sm">${ex+2}</span><div class="grow"><b>${esc(e.name)}</b><div class="muted small">${e.sets} series · descanso ${e.rest} s</div>${exerciseEquipmentLabel(e)}</div></div><p class="small muted">Prepárate: ${esc(e.prep)}</p></section>`;
 }
 
 /* ---- Pantalla 4: Entrenamiento Activo ---- */
@@ -3192,6 +3192,7 @@ function viewWork(){
         <div class="grow">
           <p class="eyebrow">${esc(s.routineName)} · Ejercicio ${ex+1} de ${rot.length}</p>
           <h2 id="exTitle">${esc(v.name)}</h2>
+          ${exerciseEquipmentLabel(v)}
         </div>
         <button class="icon-btn" data-act="adjust-ex" aria-label="Ajustar series, repeticiones y descanso">${ic('sliders')}</button>
       </div>
