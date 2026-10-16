@@ -1,0 +1,20 @@
+{
+  "id": "./",
+  "name": "Entrenador · Tu guía personal",
+  "short_name": "Entrenador",
+  "description": "Rutinas de ejercicio, temporizadores y seguimiento de progreso.",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0a0e13",
+  "theme_color": "#0a0e13",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
