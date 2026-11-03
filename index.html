@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -235,6 +235,11 @@ main{
 }
 .narrow{max-width:43rem;margin:0 auto}
 @media (max-width:43.75em){
+  .topbar{
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
+    background:rgba(10,14,19,.95);
+  }
   .tabs{
     position:fixed;
     left:0;
@@ -3592,7 +3597,7 @@ function viewWork(){
   const chips=logs.map((x,i)=>{
     const lab=`Serie ${i+1}: ${x.status==='done'?'completada':x.status==='skipped'?'omitida':'pendiente'}`;
     let valText = '·';
-    if(x.status==='done') valText = isTimed ? (x.reps ? x.reps+'s' : '✓') : (x.reps ? ${x.reps} ✓ : '✓');
+    if(x.status==='done') valText = isTimed ? (x.reps ? x.reps+'s' : '✓') : (x.reps ? `${x.reps} ✓` : '✓');
     else if(x.status==='skipped') valText = '—';
     return `<button class="setchip ${x.status} ${i===set?'cur':''}" data-act="pick-set" data-set="${i}" aria-label="${lab}" ${i===set?'aria-current="step"':''}><span class="n">${i+1}</span><span class="r">${valText}</span></button>`;
   }).join('');
